@@ -984,6 +984,7 @@ namespace IDE
 			mWorkspace.mName = new String();
 			Path.GetFileName(mWorkspace.mDir, mWorkspace.mName);
 
+			CustomBuildProperties.Load();
 			LoadWorkspace(.OpenOrNew);
 			FinishShowingNewWorkspace();
 		}
@@ -2255,18 +2256,6 @@ namespace IDE
 			outResult.Append(mInstallDir, "/DefaultLayout.toml");
 		}
 
-		void GetPropertiesFileName(String outResult)
-		{
-			String workspaceDir = scope String();
-
-			if (mWorkspace.mDir == null)
-				Directory.GetCurrentDirectory(workspaceDir);
-			else
-				workspaceDir = mWorkspace.mDir;
-
-			outResult.Append(workspaceDir, "/BeefProperties.toml");
-		}
-
 		bool GetWorkspaceFileName(String outResult)
 		{
 			if (mWorkspace.mDir == null)
@@ -2970,8 +2959,6 @@ namespace IDE
 		{
 			scope AutoBeefPerf("IDEApp.LoadWorkspace");
 
-			CustomBuildProperties.Load();
-
 			AddRecentFile(.OpenedWorkspace, mWorkspace.mDir);
 
 			StructuredData data = null;
@@ -3146,15 +3133,6 @@ namespace IDE
 							LoadFailed();
 							continue;
 						}
-						else if (projSpec.mVerSpec case .Path(let projPath))
-						{
-							String resolvedProjPath = scope String();
-							if (gApp.ResolveConfigString(null, null, null, null, projPath, "custom properties", resolvedProjPath))
-							{
-								projPath.Clear();
-								projPath.Append(resolvedProjPath);
-							}
-						}
 
 						switch (AddProject(projectName, projSpec.mVerSpec))
 						{
@@ -3204,6 +3182,7 @@ namespace IDE
 			CloseWorkspace();
 			mWorkspace.mDir = new String(workspaceDir);
 			mWorkspace.mName = new String(workspaceName);
+			CustomBuildProperties.Load();
 			LoadWorkspace(.Open);
 			FinishShowingNewWorkspace();
 		}
